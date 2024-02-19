@@ -12,8 +12,8 @@ COPY requirements.txt .
 
 RUN pip3 install -r requirements.txt --user
 
-COPY .env /.env
-COPY mysql-connector-java-8.0.30.jar /opt/spark/jars
+# COPY .env /.env
+COPY mysql-connector-j-8.2.0.jar /opt/spark/jars
 COPY pyspark_etl_auto.py /pyspark_etl_auto.py
 COPY entrypoint.sh /entrypoint.sh
 
