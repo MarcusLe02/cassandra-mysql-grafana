@@ -13,11 +13,7 @@ from pyspark.sql.functions import when
 from pyspark.sql.functions import col
 from pyspark.sql.types import *
 from pyspark.sql.functions import lit
-from pyspark import SparkConf, SparkContext
-import uuid
 from uuid import * 
-from uuid import UUID
-import time_uuid 
 from pyspark.sql import Row
 from pyspark.sql.functions import udf
 from pyspark.sql.functions import monotonically_increasing_id
@@ -166,19 +162,24 @@ def main_task(mysql_time):
     return print('Task Finished')
     
     
-def uuid_to_timestamp(my_uuid):
-    ts = uuid.UUID(my_uuid)
-    ts = datetime.datetime.utcfromtimestamp(time_uuid.TimeUUID(bytes=ts.bytes).get_timestamp())
-    return ts.strftime('%Y-%m-%d %H:%M:%S')
+# def uuid_to_timestamp(my_uuid):
+#     ts = uuid.UUID(my_uuid)
+#     ts = datetime.datetime.utcfromtimestamp(time_uuid.TimeUUID(bytes=ts.bytes).get_timestamp())
+#     return ts.strftime('%Y-%m-%d %H:%M:%S')
 
-uuid_to_timestamp_udf = udf(uuid_to_timestamp, StringType())
+# uuid_to_timestamp_udf = udf(uuid_to_timestamp, StringType())
+
+# def get_latest_time_cassandra():
+#     df = spark.read.format("org.apache.spark.sql.cassandra").options(table="tracking_new",keyspace="study_de").load()
+#     df = df.withColumn('formatted_timestamp', uuid_to_timestamp_udf(col('create_time')))
+#     max_timestamp_row = df.orderBy(col('create_time').desc()).first()
+#     max_formatted_timestamp = max_timestamp_row['formatted_timestamp']
+#     return max_formatted_timestamp
 
 def get_latest_time_cassandra():
-    df = spark.read.format("org.apache.spark.sql.cassandra").options(table="tracking_new",keyspace="study_de").load()
-    df = df.withColumn('formatted_timestamp', uuid_to_timestamp_udf(col('create_time')))
-    max_timestamp_row = df.orderBy(col('create_time').desc()).first()
-    max_formatted_timestamp = max_timestamp_row['formatted_timestamp']
-    return max_formatted_timestamp
+    data = spark.read.format("org.apache.spark.sql.cassandra").options(table = 'tracking_new',keyspace = 'study_de').load()
+    cassandra_latest_time = data.agg({'ts':'max'}).take(1)[0][0]
+    return cassandra_latest_time
 
 def get_mysql_latest_time(url,driver,user,password):    
     sql = """(SELECT MAX(create_time) FROM events) max_time"""
