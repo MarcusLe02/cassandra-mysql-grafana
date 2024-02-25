@@ -1,21 +1,22 @@
-# !/bin/sh
-# source /.env
-# echo "DB_HOST=$DB_HOST"
-# echo "DB_PORT=$DB_PORT"
-# echo "DB_NAME=$DB_NAME"
-# echo "MQTT_HOST=$MQTT_HOST"
-# echo "MQTT_PORT=$MQTT_PORT"
-# echo "CASSANDRA_HOST=$CASSANDRA_HOST"
-mkdir /tmp/.ivy
-exec /opt/spark/bin/spark-submit \
---packages com.datastax.spark:spark-cassandra-connector-assembly_2.12:3.1.0 \ Developed Kafka for messaging queue, storing raw data in Cassandra data lake, PySpark for ingesting, transforming, and loading data from data lake to MySQL warehouse, visualizing data with Grafana, and Airflow for scheduling PySpark scripts
-pyspark_etl_auto.py \
-# --conf spark.cassandra.connection.host=$CASSANDRA_HOST \
-# --conf spark.jars.ivy=/tmp/.ivy \
-# --conf spark.sql.shuffle.partitions=50 \
-# --conf spark.executor.memory=2g \
-# --conf spark.driver.cores=1  \
-# --conf spark.ui.retainedJobs=200 \
-# --conf --num-executors=1 \
-# /pyspark_etl_auto.py
+#!/bin/bash
+set -e
 
+if [ -e "/opt/airflow/requirements.txt" ]; then
+  $(command python) pip install --upgrade pip
+  $(command -v pip) install --user -r requirements.txt
+fi
+
+if [ ! -f "/opt/airflow/airflow.db" ]; then
+  airflow db init && \
+  airflow users create \
+    --username admin \
+    --firstname admin \
+    --lastname admin \
+    --role Admin \
+    --email admin@example.com \
+    --password admin
+fi
+
+$(command -v airflow) db upgrade
+
+exec airflow webserver
