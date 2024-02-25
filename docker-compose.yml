@@ -198,5 +198,33 @@ services:
       - CASSANDRA_PASSWORD=cassandra
     networks:
       - confluent
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    ports:
+      - "3308:3308"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: warehouse
+    networks:
+      - confluent
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - 3000:3000 
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_DATASOURCE_NAME: mysql
+      GF_DATASOURCE_TYPE: mysql
+      GF_DATASOURCE_ACCESS_MODE: direct
+      GF_DATASOURCE_URL: "mysql://admin:admin@mysql:3308/warehouse"
+      GF_SERVER_ROOT_URL: http://localhost:3000
+    networks:
+      - confluent
+
 networks:
   confluent:

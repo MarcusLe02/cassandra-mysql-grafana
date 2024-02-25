@@ -1,14 +1,10 @@
-import pyspark
+import logging
+
 from pyspark.sql import SparkSession
-import os
 import time
 import datetime
-from pyspark.sql import functions as sf
-from pyspark.sql import SQLContext
-from pyspark.sql.functions import when, col, lit
+from pyspark.sql.functions import col, lit
 from pyspark.sql.types import *
-from pyspark.sql.functions import monotonically_increasing_id
-from pyspark.sql.window import Window as W
 
 def calculating_clicks(df):
     clicks_data = df.filter(df.custom_track == 'click')
@@ -144,36 +140,39 @@ def get_mysql_latest_time(url,driver,user,password):
         mysql_latest = mysql_time.strftime('%Y-%m-%d %H:%M:%S')
     return mysql_latest
 
+
 # Main execution block
 if __name__ == "__main__":
-    # Create SparkSession with required configurations
-    spark = SparkSession.builder \
-                      .appName("cassandra-mysql") \
-                      .config('spark.jars.packages', 'com.datastax.spark:spark-cassandra-connector_2.12:3.1.0') \
-                      .config('spark.driver.extraClassPath', '/opt/homebrew/Cellar/apache-spark/3.5.0/libexec/jars/mysql-connector-j-8.2.0.jar') \
-                      .getOrCreate()
+        
+        # Create Spark session
+        spark = SparkSession.builder \
+            .appName("SparkCDC") \
+            .config('spark.jars.packages', 'com.datastax.spark:spark-cassandra-connector_2.12:3.1.0') \
+            .config('spark.driver.extraClassPath', '/opt/homebrew/Cellar/apache-spark/3.5.0/libexec/jars/mysql-connector-j-8.2.0.jar') \
+            .getOrCreate()
 
-    # Connection details
-    host = 'localhost'
-    port = '3308'
-    db_name = 'warehouse'
-    user = 'root'
-    password = '5nam'
-    url = f'jdbc:mysql://{host}:{port}/{db_name}'
-    driver = "com.mysql.cj.jdbc.Driver"
+        # Connection details for MySQL database
+        host = 'localhost'
+        port = '3308'
+        db_name = 'warehouse'
+        user = 'root'
+        password = 'root'
+        url = f'jdbc:mysql://{host}:{port}/{db_name}'
+        driver = "com.mysql.cj.jdbc.Driver"
 
-    while True :
-        start_time = datetime.datetime.now()
-        cassandra_time = get_latest_time_cassandra()
-        print('Cassandra latest time is {}'.format(cassandra_time))
-        mysql_time = get_mysql_latest_time(url,driver,user,password)
-        print('MySQL latest time is {}'.format(mysql_time))
-        if cassandra_time > mysql_time : 
-            main_task(mysql_time)
-        else :
-            print("No new data found")
-        end_time = datetime.datetime.now()
-        execution_time = (end_time - start_time).total_seconds()
-        print('Job takes {} seconds to execute'.format(execution_time))
-        time.sleep(10)
+        # CDC implementation from Cassandra to MySQL
+        while True:
+            start_time = datetime.datetime.now()
+            cassandra_time = get_latest_time_cassandra()
+            print('Cassandra latest time is {}'.format(cassandra_time))
+            mysql_time = get_mysql_latest_time(url,driver,user,password)
+            print('MySQL latest time is {}'.format(mysql_time))
+            if cassandra_time > mysql_time : 
+                main_task(mysql_time)
+            else :
+                print("No new data found")
+            end_time = datetime.datetime.now()
+            execution_time = (end_time - start_time).total_seconds()
+            print('Job takes {} seconds to execute'.format(execution_time))
+            time.sleep(10)
 
