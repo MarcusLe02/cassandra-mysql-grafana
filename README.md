@@ -40,7 +40,7 @@ The project is designed with the following components:
 ## Project Files
 
 - [docker-compose.yml](https://github.com/MarcusLe02/realtime-pipeline-hiring-platform/blob/master/docker-compose.yml): Configure containers for each technology
-- [kafka-stream.py](https://github.com/MarcusLe02/realtime-pipeline-hiring-platform/blob/master/dags/kafka-stream.py): Streams data from the API to Kafka
+- [kafka_stream.py](https://github.com/MarcusLe02/realtime-pipeline-hiring-platform/blob/master/dags/kafka_stream.py): Streams data from the API to Kafka
 - [spark_stream.py](https://github.com/MarcusLe02/realtime-pipeline-hiring-platform/blob/master/spark-stream.py): Processes data from Kafka and stores it in Cassandra
 - [faking_log.py](https://github.com/MarcusLe02/realtime-pipeline-hiring-platform/blob/master/faking_log.py): Generates sample interaction log data for testing
 - [spark_cdc.py](https://github.com/MarcusLe02/realtime-pipeline-hiring-platform/blob/master/spark_cdc.py): Captures changes in Cassandra, transforms and pushes them to MySQL
