@@ -141,7 +141,6 @@ def get_mysql_latest_time(url,driver,user,password):
     return mysql_latest
 
 
-# Main execution block
 if __name__ == "__main__":
         
         # Create Spark session

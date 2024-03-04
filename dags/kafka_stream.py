@@ -4,7 +4,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 
 default_args = {
-    'owner': 'airscholar',
+    'owner': 'marcus',
     'start_date': datetime(2023, 9, 3, 10, 00)
 }
 
@@ -19,7 +19,7 @@ def get_data():
 def format_data(res):
     data = {}
     location = res['location']
-    data['id'] = str(uuid.uuid4())
+    data['id'] = uuid.uuid4()
     data['first_name'] = res['name']['first']
     data['last_name'] = res['name']['last']
     data['gender'] = res['gender']
@@ -61,7 +61,7 @@ def stream_data():
             logging.error(f'An error occured: {e}')
             continue
 
-stream_data()
+# stream_data()
 
 with DAG('user_automation',
          default_args=default_args,
