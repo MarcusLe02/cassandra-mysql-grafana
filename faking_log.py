@@ -1,10 +1,5 @@
 from cassandra.cluster import Cluster
-from cassandra.cqlengine import columns
-from cassandra.cqlengine.models import  Model
-from cassandra.cqlengine.management import sync_table
-from cassandra.cqlengine import connection
-from cassandra.query import dict_factory
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
 import cassandra
 import random
@@ -15,7 +10,6 @@ pd.set_option("display.max_rows", None, "display.max_columns", None)
 import datetime
 from sqlalchemy import create_engine
 import pandas as pd
-import numpy as np
 import mysql.connector
 
 host = 'localhost'
